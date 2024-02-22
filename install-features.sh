@@ -54,6 +54,13 @@ EOF
       local tlsArgs='';
     fi
 
+    if [[ $(jq -r .name <<< $feature | tr '[:upper:]' '[:lower:]') == "snowflake" ]]; then
+      export ORGURL=$(jq -r .organisation-url <<< $feature)
+      export OAUTH=$(jq -r .oauth-token <<< $feature)
+      cmd="sh install-connector.sh";
+      eval "${cmd}" &>/dev/null & disown;
+    fi
+
     while read workload; do
       echo $(jq -r .command <<< $feature) -n $(jq -r .namespace <<< $feature) $workload \
         $(jq -r .helmRepoName <<< $feature)/${workload}$(jq -r .helmChartNameSuffix <<< $feature) \
