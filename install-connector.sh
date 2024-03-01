@@ -4,10 +4,10 @@
 CONST_PASS=openmesh-password
 
 # Keygen
-openssl genrsa 2048 | openssl pkcs8 -topk8 -inform PEM -out rsa_key.p8 -passin pass:$CONST_PASS -passout pass:$CONST_PASS
-SECRET=$(echo `sed -e '2,$!d' -e '$d' -e 's/\n/ /g' rsa_key.p8`|tr -d ' ')  
-openssl rsa -in rsa_key.p8 -pubout -out rsa_key.pub -passin pass:$CONST_PASS -passout pass:$CONST_PASS
-PUBKEY=$(echo `sed -e '2,$!d' -e '$d' -e 's/\n/ /g' rsa_key.pub`|tr -d ' ')
+openssl genrsa 2048 | openssl pkcs8 -topk8 -inform PEM -out rsa_key.p8 -passin pass:$CONST_PASS -passout pass:$CONST_PASS;
+SECRET=$(echo `sed -e '2,$!d' -e '$d' -e 's/\n/ /g' rsa_key.p8`|tr -d ' ');
+openssl rsa -in rsa_key.p8 -pubout -out rsa_key.pub -passin pass:$CONST_PASS -passout pass:$CONST_PASS;
+PUBKEY=$(echo `sed -e '2,$!d' -e '$d' -e 's/\n/ /g' rsa_key.pub`|tr -d ' ');
 
 # Use GPG keys to verify snowsql installation
 verify_snowsql () {
@@ -34,7 +34,7 @@ echo "Waiting for Kafka Connect to start listening on kafka-connect  "
 while :; do
     # Check if the connector endpoint is ready
     # If not check again
-    curl_status=$(curl -s -o /dev/null -w %{http_code} http://localhost:{{ .Values.servicePort }}/connectors)
+    curl_status=$(curl -s -o /dev/null -w %{http_code} http://connect.confluent:{{ .Values.servicePort }}/connectors)
     echo -e $(date) "Kafka Connect listener HTTP state: " $curl_status " (waiting for 200)"
     if [ $curl_status -eq 200 ]; then
         break
