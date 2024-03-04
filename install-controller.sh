@@ -87,7 +87,7 @@ extract_settings () {
   export control_plane_node_count=$(jq -r .control_plane_node_count <<< $INFRA_CONFIG)
   export count=$(jq -r .count <<< $INFRA_CONFIG)
   export count_gpu=$(jq -r .count_gpu <<< $INFRA_CONFIG)
-  export gateway_ip=$(curl https://metadata.platformequinix.com/metadata | jq -r '.network.addresses[] | select(.public == false) | .gateway')
+  export gateway_ip=$(curl http://169.254.1.1/v1/ | jq -r '.network.addresses[] | select(.public == false) | .gateway')
 
   export kube_token=$(jq -r .kube_token <<< $INFRA_CONFIG)
   export kube_version=$(jq -r .kube_version <<< $INFRA_CONFIG)
@@ -96,8 +96,8 @@ extract_settings () {
   export metallb_namespace=$(jq -r .metallb_namespace <<< $INFRA_CONFIG)
   export metallb_network_cidr=$(jq -r .metallb_network_cidr <<< $INFRA_CONFIG)
   export metallb_release=$(jq -r .metallb_release <<< $WORKLOADS)
-  export private_management_ip=$(curl -s http://metadata.platformequinix.com/metadata | jq -r '.network.addresses[] | select(.public == false) | select(.management == true) | select(.address_family == 4) | .address')
-  export public_management_ip=$(curl -s http://metadata.platformequinix.com/metadata | jq -r '.network.addresses[] | select(.public == true) | select(.management == true) | select(.address_family == 4) | .address')
+  export private_management_ip=$(curl -s http://169.254.1.1/v1/ | jq -r '.network.addresses[] | select(.public == false) | select(.management == true) | select(.address_family == 4) | .address')
+  export public_management_ip=$(curl -s http://169.254.1.1/v1/ | jq -r '.network.addresses[] | select(.public == true) | select(.management == true) | select(.address_family == 4) | .address')
 
   export secrets_encryption=$(jq -r .secrets_encryption <<< $INFRA_CONFIG)
   export shortlived_kube_token=$(jq -r .shortlived_kube_token <<< $INFRA_CONFIG)
@@ -357,8 +357,8 @@ install_extra () {
 bgp_routes () {
   echo $gateway_ip
   # TODO use metadata peer ips
-  ip route add 169.254.255.1 via $gateway_ip
-  ip route add 169.254.255.2 via $gateway_ip
+  ip route add 169.254.1.1 via $gateway_ip
+  ip route add 169.254.1.1 via $gateway_ip
   sed -i.bak -E "/^\s+post-down route del -net 10\.0\.0\.0.* gw .*$/a \ \ \ \ up ip route add 169.254.255.1 via $gateway_ip || true\n    up ip route add 169.254.255.2 via $gateway_ip || true\n    down ip route del 169.254.255.1 || true\n    down ip route del 169.254.255.2 || true" /etc/network/interfaces
 }
 

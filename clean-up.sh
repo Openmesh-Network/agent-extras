@@ -6,10 +6,10 @@ export BUILD_DIR=$HOME/$PRODUCT_NAME-install
 
 apt-get install -y knockd
 
-PUBLIC_IP=$(curl -s http://metadata.platformequinix.com/metadata | jq -r '.network.addresses[] | select(.public == true) | select(.management == true) | select(.address_family == 4) | .address')
-PRIVATE_IP=$(curl -s http://metadata.platformequinix.com/metadata | jq -r '.network.addresses[] | select(.public == false) | select(.management == true) | select(.address_family == 4) | .address')
-NETWORK=$(curl -s http://metadata.platformequinix.com/metadata | jq -r '.network.addresses[] | select(.public == false) | select(.management == true) | select(.address_family == 4) | .parent_block.network')
-CIDR=$(curl -s http://metadata.platformequinix.com/metadata | jq -r '.network.addresses[] | select(.public == false) | select(.management == true) | select(.address_family == 4) | .parent_block.cidr')
+PUBLIC_IP=$(curl -s http://169.254.1.1/v1/ | jq -r '.network.addresses[] | select(.public == true) | select(.management == true) | select(.address_family == 4) | .address')
+PRIVATE_IP=$(curl -s http://169.254.1.1/v1/ | jq -r '.network.addresses[] | select(.public == false) | select(.management == true) | select(.address_family == 4) | .address')
+NETWORK=$(curl -s http://169.254.1.1/v1/ | jq -r '.network.addresses[] | select(.public == false) | select(.management == true) | select(.address_family == 4) | .parent_block.network')
+CIDR=$(curl -s http://169.254.1.1/v1/ | jq -r '.network.addresses[] | select(.public == false) | select(.management == true) | select(.address_family == 4) | .parent_block.cidr')
 
 cat << EOF > /etc/knockd.conf
 [options]

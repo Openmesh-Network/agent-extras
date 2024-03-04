@@ -35,10 +35,10 @@ function ceph_pre_check {
 }
 
 function bgp_routes {
- GATEWAY_IP=$(curl https://metadata.platformequinix.com/metadata | jq -r ".network.addresses[] | select(.public == false) | .gateway")
+ GATEWAY_IP=$(curl http://169.254.1.1/v1/ | jq -r ".network.addresses[] | select(.public == false) | .gateway")
  # TODO use metadata peer ips
- ip route add 169.254.255.1 via $GATEWAY_IP
- ip route add 169.254.255.2 via $GATEWAY_IP
+ #ip route add 169.254.1.1 via $GATEWAY_IP
+ ip route add 169.254.1.1 via $GATEWAY_IP
  sed -i.bak -E "/^\s+post-down route del -net 10\.0\.0\.0.* gw .*$/a \ \ \ \ up ip route add 169.254.255.1 via $GATEWAY_IP || true\n    up ip route add 169.254.255.2 via $GATEWAY_IP || true\n    down ip route del 169.254.255.1 || true\n    down ip route del 169.254.255.2 || true" /etc/network/interfaces
 }
 
@@ -71,10 +71,10 @@ apiVersion: kubeadm.k8s.io/v1beta3
 kind: JoinConfiguration
 nodeRegistration:
   kubeletExtraArgs:
-    node-ip: $(curl -s http://metadata.platformequinix.com/metadata | jq -r '.network.addresses[] | select(.public == false) | select(.management == true) | select(.address_family == 4) | .address')
+    node-ip: $(curl -s http://169.254.1.1/v1/ | jq -r '.network.addresses[] | select(.public == false) | select(.management == true) | select(.address_family == 4) | .address')
 discovery:
   bootstrapToken:
-    apiServerEndpoint: $(ipcalc $(curl -s http://metadata.platformequinix.com/metadata | jq -r '.network.addresses[] | select(.public == false) | select(.management == true) | select(.address_family == 4) | .parent_block.network')/$(curl -s http://metadata.platformequinix.com/metadata | jq -r '.network.addresses[] | select(.public == false) | select(.management == true) | select(.address_family == 4) | .parent_block.cidr') | sed -n -e '/^HostMin/p' | awk '{print $2}'):6443
+    apiServerEndpoint: $(ipcalc $(curl -s http://169.254.1.1/v1/ | jq -r '.network.addresses[] | select(.public == false) | select(.management == true) | select(.address_family == 4) | .parent_block.network')/$(curl -s http://169.254.1.1/v1/ | jq -r '.network.addresses[] | select(.public == false) | select(.management == true) | select(.address_family == 4) | .parent_block.cidr') | sed -n -e '/^HostMin/p' | awk '{print $2}'):6443
     token: ${kube_token}
     unsafeSkipCAVerification: true
 EOF
